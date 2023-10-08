@@ -11,7 +11,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [storyPageNo, setStoryPage] = useState(1);
   const [stories, setStories] = useState(1);
-  const [videoWrapper, setVideoWrapper] = useState(null);
 
   useEffect(() => {
     const loadStoriesBasedOnCategoryHandler = async (categoryId) => {
@@ -38,16 +37,6 @@ function App() {
       }
     };
     loadStoriesBasedOnCategoryHandler("647e2a9b944ac81667b2cbfb");
-
-    const videoWrapper = document.querySelector('.video-wrapper');
-    setVideoWrapper(videoWrapper);
-
-    videoWrapper?.addEventListener('scroll', () => {
-      if (videoWrapper?.scrollTop === 0) {
-        const currentVideo = videoWrapper?.querySelector('.video-player');
-        currentVideo.pause();
-      }
-    });
   }, []);
 
   const toggleDescription = (id) => {
@@ -127,8 +116,7 @@ function App() {
             stories.map((story, i) => {
               if (story.story_type === "video") {
                 return (
-                  <div className="video-wrapper video-card" key={i + story._id}>
-                    {/* <div className="video-wrapper"> */}
+                  <div className="video-card" key={i + story._id}>
                     {story.story_url_quality_versions.url_360 && (
                       <video
                         src={story.story_url_quality_versions.url_720}
@@ -141,8 +129,6 @@ function App() {
                         Your browser does not support the video tag.
                       </video>
                     )}
-                    {/* </div> */}
-                    {/* <div className="video-wrapper"> */}
                     {!story.story_url_quality_versions.url_360 && (
                       <video
                         src={story.story_url}
@@ -155,7 +141,6 @@ function App() {
                         Your browser does not support the video tag.
                       </video>
                     )}
-                    {/* </div> */}
                     {story._id && (
                       <div
                         className="thumbs-wrapper"
