@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import parse from "html-react-parser";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { AiOutlineMore } from "react-icons/ai";
@@ -7,10 +7,12 @@ import { RiSendPlaneLine } from "react-icons/ri";
 import "./viewstorymobile.css";
 import { getRequestedData } from "./functions/api/Api";
 
+// import Videos from "./component/Video";
+
 function App() {
   const [loading, setLoading] = useState(false);
   const [storyPageNo, setStoryPage] = useState(1);
-  const [stories, setStories] = useState(1);
+  const [stories, setStories] = useState([]);
 
   useEffect(() => {
     const loadStoriesBasedOnCategoryHandler = async (categoryId) => {
@@ -26,6 +28,7 @@ function App() {
             ...oldArray,
             ...res.data.body.getStoryModel,
           ]);
+
         } else {
           setStories(res.data.body.getStoryModel);
         }
@@ -39,73 +42,35 @@ function App() {
     loadStoriesBasedOnCategoryHandler("647e2a9b944ac81667b2cbfb");
   }, []);
 
+
+  console.log("stories===>", stories)
+
+
   const toggleDescription = (id) => {
     var element = document.getElementById(id);
     element.classList.toggle("active");
   };
 
-  let currentCheck = 0;
-  let index = 0;
-  let stoped = false;
+
+
   function scrollHandler(e) {
-    var atSnappingPoint = e.target.scrollTop % e.target.offsetHeight === 0;
-    var timeOut = atSnappingPoint ? 0 : 150; //see notes
+    const scrollPosition = e.target.scrollTop;
+    const cardHeight = window.innerHeight;
+    const currentIndex = Math.floor(scrollPosition / cardHeight);
 
-    clearTimeout(e.target.scrollTimeout); //clear previous timeout
-
-    e.target.scrollTimeout = setTimeout(function () {
-      //using the timeOut to evaluate scrolling state
-      if (!timeOut) {
-        console.log("Scroller snapped!");
-
-        console.log(e.target.scrollTop, e.target.offsetHeight);
-
-        if (currentCheck <= e.target.scrollTop) {
-          currentCheck = e.target.scrollTop;
-
-          if (stoped) {
-            stoped = false;
-
-            if (document.getElementById(`s${index}`))
-              document.getElementById(`s${index}`).play();
-
-            if (document.getElementById(`s${index - 1}`))
-              document.getElementById(`s${index - 1}`).pause();
-            index = index;
-          } else {
-            if (document.getElementById(`s${index}`))
-              document.getElementById(`s${index}`).pause();
-            if (document.getElementById(`s${index + 1}`))
-              document.getElementById(`s${index + 1}`).play();
-            index = index + 1;
-          }
-        } else {
-          currentCheck = e.target.scrollTop;
-          if (stoped) {
-            stoped = false;
-            if (document.getElementById(`s${index}`))
-              document.getElementById(`s${index}`).play();
-            if (document.getElementById(`s${index + 1}`))
-              document.getElementById(`s${index + 1}`).pause();
-            index = index;
-          } else {
-            if (document.getElementById(`s${index}`))
-              document.getElementById(`s${index}`).pause();
-            if (document.getElementById(`s${index - 1}`))
-              document.getElementById(`s${index - 1}`).play();
-            index = index - 1;
-          }
+    stories.forEach((story, i) => {
+      if (i !== currentIndex) {
+        const videoElement = document.getElementById(`s${i + 1}`);
+        if (videoElement) {
+          videoElement.pause();
         }
-      } else {
-        console.log("User stopped scrolling.");
-        console.log(index);
-        stoped = true;
       }
-    }, timeOut);
+    });
 
-    // if (e.target.scrollLeft % e.target.offsetWidth === 0) {
-    //   console.log("Scrolling is done!");
-    // }
+    const currentVideoElement = document.getElementById(`s${currentIndex + 1}`);
+    if (currentVideoElement) {
+      currentVideoElement.play();
+    }
   }
 
   return (
